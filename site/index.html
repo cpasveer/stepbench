@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark light">
+  <meta name="theme-color" content="#384154">
+  <title>JointBench</title>
+  <meta name="description" content="A benchmark for 3D CAD agents: model the part that joins the given parts. Graded by measurement, the same for agents and people.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='3' y='3' width='26' height='6' fill='%23888'/%3E%3Crect x='3' y='23' width='26' height='6' fill='%23888'/%3E%3Cpath d='M8 9h6v14H8z' fill='%23e2600f'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="top">
+    <a class="brand" href="#/">JointBench</a>
+    <nav>
+      <a href="#/" data-nav="tasks">Tasks</a>
+      <a href="#/scores" data-nav="scores">Scores</a>
+      <a href="#/compare" data-nav="compare">Compare</a>
+      <a href="#/about" data-nav="about">About</a>
+    </nav>
+    <div class="spacer"></div>
+    <button class="icon-btn" id="theme" aria-label="Switch between dark and light"></button>
+  </header>
+  <main id="app"><div class="empty-note" style="position:static;padding:80px 0">loading…</div></main>
+  <noscript><p style="padding:20px">This viewer needs JavaScript (no build step, no outside servers: plain ES modules and a vendored copy of three.js).</p></noscript>
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

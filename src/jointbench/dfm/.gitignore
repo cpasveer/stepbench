@@ -1,0 +1,3 @@
+_fastball*.so
+_fastball*.pyd
+_native/target/

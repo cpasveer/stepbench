@@ -1,0 +1,53 @@
+# CNC milling, 3-axis: PLANNED, not built.
+#
+# This file marks the place for the third process. The checker refuses
+# `--process milling` until the rules below have code and self-test parts.
+# The rules are listed so the shape of the work is visible; their limits
+# are first proposals for aluminium with standard end mills.
+
+[process]
+id = "milling"
+name = "CNC milling, 3-axis (planned)"
+status = "planned"
+direction = "tool direction"
+direction_meaning = "the spindle axis; a 3-axis job may use one or more set-ups, each with its own direction"
+
+[rules.MILL_TOOL_ACCESS]
+title = "Every face reachable by the tool from a set-up direction"
+kind = "max"
+value = 0.0
+unit = "mm2"
+source = "same visibility test as moulding UNDERCUT, with the set-up directions in place of the pull"
+
+[rules.MILL_INNER_RADIUS]
+title = "Inner vertical corners at least the tool radius"
+kind = "min"
+value = 1.5
+unit = "mm"
+source = "a 3 mm end mill leaves a 1.5 mm radius in every inner corner along the tool axis"
+
+[rules.MILL_POCKET_DEPTH]
+title = "Pocket depth relative to tool diameter"
+kind = "max"
+value = 4.0
+unit = "ratio"
+source = "Hubs CNC guide: cavity depth up to 4 x tool diameter"
+
+[rules.MILL_WALL_MIN]
+title = "Minimum wall thickness"
+kind = "min"
+value = 0.8
+unit = "mm"
+source = "Hubs CNC guide: 0.8 mm for metals, 1.5 mm for plastics"
+
+[rules.MILL_HOLE_DEPTH]
+title = "Hole depth relative to diameter"
+kind = "max"
+value = 4.0
+unit = "ratio"
+source = "Hubs CNC guide: standard drills to 4 x diameter, deeper needs special tools"
+
+[settings.sample_spacing]
+value = 1.5
+unit = "mm"
+source = "longest side of a sample triangle: the part is meshed this fine and every triangle is judged at its centre"

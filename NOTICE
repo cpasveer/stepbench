@@ -1,0 +1,12 @@
+STEP.bench
+Copyright 2026 Casper Pasveer
+
+This product is licensed under the Apache License, Version 2.0 (see LICENSE).
+
+This product includes three.js (https://threejs.org), copyright the
+three.js authors, under the MIT License; its licence is in
+site/vendor/three/LICENSE.
+
+The manufacturing rules were inspired by the FreeCAD DFM Workbench
+(https://github.com/ryankembrey/FreeCAD-DFM-Workbench, LGPL-2.1). Its list
+of rule ideas was read; no code from it is included.

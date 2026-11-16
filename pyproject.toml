@@ -1,0 +1,32 @@
+[project]
+name = "jointbench"
+version = "0.1.0"
+description = "Generated 3D CAD benchmark: design the part that bolts to the given parts"
+readme = "README.md"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+requires-python = ">=3.12"
+dependencies = [
+    "build123d>=0.13.0",
+    "pillow>=10.1",
+]
+
+[project.scripts]
+jointbench = "jointbench.cli:main"
+
+[project.optional-dependencies]
+stiffness = [
+    "gmsh>=4.15.2",
+    "pyamg>=5.4.1",
+    "scikit-fem>=12.0.2",
+    "threadpoolctl>=3.8.0",
+]
+
+[build-system]
+requires = ["uv_build>=0.10.2,<0.11.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "pytest>=9.2.0",
+]

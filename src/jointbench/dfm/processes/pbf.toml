@@ -1,0 +1,115 @@
+# Powder bed fusion (SLS / MJF): the rules and their limits.
+#
+# Every limit has a value, a unit and a short note on where it comes from.
+# "kind" says which side of the limit is good: "min" = the measured number
+# must be at least the limit, "max" = at most the limit.
+#
+# The limits are for nylon (PA12) on an SLS or Multi Jet Fusion machine, as
+# a print service runs it. They are the middle of the published guidance.
+#
+# NO overhang or bridge rules: the part is built inside a bed of loose
+# powder, which holds up every overhang and bridge while it is built. That
+# is the main difference from filament printing, and why the build
+# direction does not matter to these rules.
+
+[process]
+id = "pbf"
+name = "Powder bed fusion (SLS / MJF)"
+status = "built"
+direction = ""
+direction_meaning = "none: the powder supports the part in every direction, so no rule depends on how it is oriented"
+
+[rules.PBF_WALL_MIN]
+title = "Minimum wall thickness"
+kind = "min"
+value = 0.8
+unit = "mm"
+source = "Hubs SLS guide 0.7 mm, HP MJF guide 0.5-1 mm depending on size; 0.8 mm as the common middle"
+
+[rules.PBF_SEALED_HOLLOW]
+title = "No sealed hollows"
+kind = "max"
+value = 0
+unit = "voids"
+source = "unsintered powder trapped in a closed cavity cannot be removed; it adds weight and is not part of the design"
+
+[rules.PBF_ESCAPE_HOLES]
+title = "Hollows have escape holes for the powder"
+kind = "min"
+value = 2
+unit = "holes"
+source = "Hubs SLS and HP MJF guides: a hollow needs at least two escape holes (one to blow air in, one for powder to leave) of at least 5 mm"
+
+[rules.PBF_HOLE_MIN]
+title = "Minimum hole diameter"
+kind = "min"
+value = 1.5
+unit = "mm"
+source = "Hubs SLS guide: holes under about 1.5 mm fill with fused powder"
+
+[rules.PBF_PIN_MIN]
+title = "Minimum pin diameter"
+kind = "min"
+value = 0.8
+unit = "mm"
+source = "Hubs SLS guide: pins under about 0.8 mm break during powder removal"
+
+[rules.PBF_GAP_MIN]
+title = "Minimum gap between faces that must not fuse"
+kind = "min"
+value = 0.5
+unit = "mm"
+source = "HP MJF and Hubs SLS guides: 0.4-0.5 mm clearance keeps neighbouring faces from sintering together"
+
+[rules.PBF_SECTION_MAX]
+title = "Maximum solid section"
+kind = "max"
+value = 15.0
+unit = "mm"
+source = "judgement from the HP MJF and Formlabs Fuse guides, which advise hollowing solid sections from about 10-20 mm: thick sections hold heat, shrink unevenly and cost powder"
+
+[rules.PBF_TRANSITION]
+title = "No abrupt changes of wall thickness"
+kind = "max"
+value = 3.0
+unit = "ratio"
+source = "judgement: where a wall meets a section more than 3 x as thick at an inside corner, the two cool at different rates and the join distorts (MJF guides ask for gradual transitions)"
+
+[rules.PBF_WARP_FLAT]
+title = "No large thin flat areas"
+kind = "max"
+value = 40.0
+unit = "ratio"
+source = "judgement: a flat face whose length is more than about 40 x the section under it curls as it cools (SLS/MJF guides warn about large thin flat areas; a 2 mm plate stays flat up to about 80 mm)"
+
+# Not built: minimum embossed or engraved detail (about 0.5 mm deep and wide
+# in the guides). Telling lettering from other small features needs a
+# notion of 'detail' the solid does not carry; not cheap, so left out.
+
+# ---- how the checker measures
+
+[settings.gap_open_corner]
+value = 30.0
+unit = "deg"
+source = "maintainer, 13 November 2026: a gap between two faces that meet in an inside corner of at least this angle is not judged. In a V the clear space shrinks to nothing at the bottom, but the part narrower than the gap limit (0.5 mm) reaches only 0.25 / tan(angle/2) mm from the corner line: 0.5 mm at 54 deg, about 1 mm at 30 deg, a fused fillet nobody notices. Below about 10 deg it reaches 3 mm and more: a real trapped sliver. Slots between nearly parallel faces stay fully judged"
+
+[settings.sample_spacing]
+value = 1.5
+unit = "mm"
+source = "longest side of a sample triangle: the part is meshed this fine and every triangle is judged at its centre"
+
+[settings.escape_hole_diameter]
+value = 5.0
+unit = "mm"
+source = "smallest hole that counts as an escape hole (Hubs SLS guide: 5 mm)"
+
+[settings.corner_turn]
+value = 30.0
+unit = "deg"
+source = "an edge where the surface turns by at least this much is an inside corner, for the transition rule"
+
+# ---- material actually used (for a material score; not a rule)
+[material]
+name = "PA12"
+density = 1.01            # g/cm3, fully sintered
+source = "HP / EOS PA12 data sheets: parts are fully dense, so the part's own volume is the material. Loose powder around the part is sieved and reused (with fresh powder added, typically 20-50 %); it is not counted. Powder sealed inside a hollow cannot be recovered: it is counted, since it is part of what is shipped."

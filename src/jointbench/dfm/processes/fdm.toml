@@ -1,0 +1,162 @@
+# Filament printing (FDM): the rules and their limits.
+#
+# Every limit has a value, a unit and a short note on where it comes from.
+# Change a number here and the checker uses it; no code needs reading.
+# "kind" says which side of the limit is good: "min" = the measured number
+# must be at least the limit, "max" = at most the limit.
+#
+# The limits are for a common setup: 0.4 mm nozzle, 0.2 mm layers, PLA or
+# PETG, no support material, no brim. They are deliberately the middle of
+# the published guidance, not the best a tuned printer can do.
+
+[process]
+id = "fdm"
+name = "Filament printing (FDM)"
+status = "built"
+direction = "build direction"
+direction_meaning = "the way the layers stack, pointing from the bed up into the part"
+
+[rules.FDM_WALL_MIN]
+title = "Minimum wall thickness"
+kind = "min"
+value = 0.8
+unit = "mm"
+source = "two extrusion lines of a 0.4 mm nozzle; Hubs and Prusa FDM guides give 0.8 mm for walls"
+
+[rules.FDM_OVERHANG]
+title = "Overhang without support"
+kind = "max"
+value = 45.0
+unit = "deg"
+source = "the 45 degree rule: each layer may stick out about half its width over the one below (Hubs, Prusa, Ultimaker guides)"
+
+[rules.FDM_BRIDGE]
+title = "Maximum bridge span"
+kind = "max"
+value = 10.0
+unit = "mm"
+source = "Hubs FDM guide: bridges up to about 10 mm print without visible sag"
+
+[rules.FDM_HOLE_MIN]
+title = "Minimum hole diameter"
+kind = "min"
+value = 2.0
+unit = "mm"
+source = "Hubs FDM guide: holes under about 2 mm close up or come out undersized"
+
+[rules.FDM_PIN_MIN]
+title = "Minimum pin diameter"
+kind = "min"
+value = 3.0
+unit = "mm"
+source = "Hubs FDM guide: free-standing pins under about 3 mm print poorly and snap off"
+
+[rules.FDM_GAP_MIN]
+title = "Minimum gap between faces"
+kind = "min"
+value = 0.5
+unit = "mm"
+source = "Hubs FDM guide: about 0.5 mm clearance keeps neighbouring features from fusing"
+
+[rules.FDM_BED_CONTACT]
+title = "Flat face on the bed, large enough"
+kind = "min"
+value = 50.0
+unit = "mm2"
+source = "judgement: about a 7 x 7 mm footprint holds a small part on a textured PEI bed without a brim"
+
+[rules.FDM_STANCE]
+title = "Stance wide enough for the height"
+kind = "max"
+value = 3.0
+unit = "x"
+source = "rule of thumb, set with the maintainer 13 November 2026: a part stands without brim or aids when it is at most about three times as tall as its foot is wide. Measured as the height on the bed over the stance width: the narrowest width of the outline around every face on the bed. The nozzle drags at the top of the part, a lever on the foot"
+
+[rules.FDM_SEALED_HOLLOW]
+title = "No sealed hollows"
+kind = "max"
+value = 0
+unit = "voids"
+source = "a cavity with no opening traps support or air and cannot be checked or cleaned"
+
+[rules.FDM_SUPPORT_REMOVABLE]
+title = "Support can be removed"
+kind = "max"
+value = 0.0
+unit = "mm2"
+source = "support that cannot be reached cannot be broken out: support inside a closed pocket (no straight way out), or in a gap or slot narrower than the reach limit below. Required whether support is allowed or not; the area is the overhang it would hold up"
+
+# ---- how the checker measures (not rules, but they change what it can see)
+
+[settings.support_allowed]
+value = 0
+unit = "0/1"
+source = "default for the support knob: 0 = must print without support (overhang and bridge required); 1 = support allowed, counted as material. A task or caller sets it with support='allowed'/'forbidden'"
+
+[settings.support_reach]
+value = 3.0
+unit = "mm"
+source = "judgement: the narrowest gap or slot in which support can still be reached with pliers or a pick and broken out; slicer guides warn that support in gaps of a few mm fuses to the part"
+
+[settings.sample_spacing]
+value = 1.5
+unit = "mm"
+source = "longest side of a sample triangle: the part is meshed this fine and every triangle is judged at its centre"
+
+[settings.edge_line_width]
+value = 0.4
+unit = "mm"
+source = "maintainer, 13 November 2026: a downward edge (keel) is one line of plastic; it holds while each layer's line still overlaps the one below, so it may step out up to one line width per layer. With 0.2 mm layers that is atan(0.4 / 0.2) = 63.4 deg from vertical. Faces keep the 45 deg rule (half a width per layer)"
+
+[settings.edge_layer_height]
+value = 0.2
+unit = "mm"
+source = "the layer height of the stated printer setup (0.4 mm nozzle, 0.2 mm layers); with edge_line_width it sets the downward-edge limit"
+
+[settings.wall_open_corner]
+value = 45.0
+unit = "deg"
+source = "a wall is material between two roughly opposite surfaces. A thin reading whose ray leaves through a surface turned less than 180 - 45 = 135 deg from its start face cut across a corner of material of at least 45 deg (Fable pipe L2 try 1: 0.38 mm read 0.016 mm from an 88 deg edge), not a wall: at such a corner the reading x * tan(angle) goes to nothing at the edge for any corner under 90 deg. The part of a 45 deg corner under the wall limit lies within 0.8 / (2 tan 22.5 deg) = 1 mm of the edge, about one wall width. Sharper wedges stay judged as walls (the chosen 120-135 deg range, its stricter end); knife edges under 5 deg are Q_THIN_WEDGE's"
+
+[settings.gap_open_corner]
+value = 30.0
+unit = "deg"
+source = "maintainer, 13 November 2026: a gap between two faces that meet in an inside corner of at least this angle is not judged. In a V the clear space shrinks to nothing at the bottom, but the part narrower than the gap limit (0.5 mm) reaches only 0.25 / tan(angle/2) mm from the corner line: 0.5 mm at 54 deg, about 1 mm at 30 deg, a fused fillet nobody notices. Below about 10 deg it reaches 3 mm and more: a real trapped sliver. Slots between nearly parallel faces stay fully judged"
+
+[settings.overhang_hole_exempt_diameter]
+value = 10.0
+unit = "mm"
+source = "Hubs FDM guide: horizontal holes up to about 10 mm print without support (the top sags slightly)"
+
+[settings.bridge_directions]
+value = 8
+unit = "directions"
+source = "directions tried in the ceiling plane when looking for two supported ends (every 22.5 degrees)"
+
+[settings.flat_tolerance]
+value = 1.0
+unit = "deg"
+source = "a face within this angle of horizontal counts as flat (bed contact, bridge ceiling)"
+
+[settings.candidate_faces]
+value = 6
+unit = "faces"
+source = "when no direction is stated, the largest flat faces tried as the bed face, besides the six axis directions"
+
+[settings.cross_faces]
+value = 4
+unit = "faces"
+source = "when no direction is stated, also try, for each pair of the this-many largest flat faces, the direction square to both, either way up: both faces stand upright. Found 13 November: a part designed to print with its two mounting faces upright stands on wall edges, a direction the other candidates miss"
+
+# ---- material actually used (for a material score; not a rule)
+[material]
+name = "PLA"
+density = 1.24            # g/cm3
+perimeters = 3            # wall lines around every side face
+line_width = 0.4          # mm, so side walls are 1.2 mm thick
+top_bottom_layers = 4     # solid layers under top faces and over bottom faces
+layer_height = 0.2        # mm, so top and bottom skins are 0.8 mm thick
+flat_angle = 45.0         # deg: a face within this of horizontal gets top/bottom skin, else perimeters
+infill = 0.20             # share of the enclosed interior filled
+support_density = 0.15    # share of the space under an overhang filled by support, if support were allowed
+source = "a common slicer profile (PrusaSlicer/Cura 0.2 mm 'standard'): 2-3 perimeters, 4 top/bottom layers, 15-20 % infill; support 15 %"

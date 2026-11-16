@@ -1,0 +1,4 @@
+three.js r160 (npm three@0.160.0), from unpkg.com.
+Files: build/three.module.js, examples/jsm/controls/OrbitControls.js, LICENSE (MIT).
+One change: OrbitControls.js imports "./three.module.js" instead of "three",
+so no import map is needed.

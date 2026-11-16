@@ -1,0 +1,116 @@
+# Modelling quality: how cleanly a solid is modelled.
+#
+# These rules do not ask whether the part works or can be made; they ask
+# whether an engineer would accept the model. Untidy models fit and pass
+# today: a plate joined to a body 0.1 mm out of line leaves a hairline
+# step, a sliver face tapering to a knife-thin tip, and a 1 degree crease.
+# Each rule here catches one of those signs.
+#
+# Every limit has a value, a unit and a short note on where it comes from.
+# There is no published standard for these numbers; most are judgement,
+# and the note says so. "kind": "min" = the measured number must be at
+# least the limit, "max" = at most the limit.
+
+[process]
+id = "quality"
+name = "Modelling quality"
+status = "built"
+direction = ""
+direction_meaning = "no direction: the rules look at the model, not at a process"
+
+[rules.Q_SLIVER_FACE]
+title = "No sliver faces"
+kind = "min"
+value = 0.25
+unit = "mm"
+source = "judgement: a face whose mean width is under 0.25 mm while it is at least 10 x longer than wide is a leftover, not a feature (CAD healing tools use similar 'small face' tolerances)"
+
+[rules.Q_TINY_FACE]
+title = "No tiny faces"
+kind = "min"
+value = 0.1
+unit = "mm2"
+source = "judgement: about a 0.3 x 0.3 mm patch; no deliberate feature of a machine part is that small"
+
+[rules.Q_SHORT_EDGE]
+title = "No very short edges"
+kind = "min"
+value = 0.1
+unit = "mm"
+source = "judgement: 0.1 mm is 100 x the usual modelling tolerance and below any drawn feature"
+
+[rules.Q_SMALL_STEP]
+title = "No hairline steps between faces meant to be flush"
+kind = "min"
+value = 0.2
+unit = "mm"
+source = "judgement: two faces facing the same way (within 3 deg) joined by a step under 0.2 mm high were almost certainly meant to be flush"
+
+[rules.Q_THIN_WEDGE]
+title = "No knife edges or thin wedges"
+kind = "min"
+value = 5.0
+unit = "deg"
+source = "judgement: a face corner or an edge where material (or a gap) narrows at under 5 deg thins to nothing; real wedges, chamfers and tapers are steeper"
+
+[rules.Q_CREASE]
+title = "No near-flat creases"
+kind = "min"
+value = 2.0
+unit = "deg"
+source = "judgement: two faces meeting at under 2 deg (but not smoothly) were meant to be one flat or smooth surface; drafts and tapers are not modelled as such creases"
+
+[rules.Q_UNMERGED]
+title = "Faces on the same surface are merged"
+kind = "max"
+value = 0
+unit = "pairs"
+source = "a face split in two along an edge, both halves on the same plane or cylinder, is a leftover of a boolean that was not cleaned up"
+
+[rules.Q_NEAR_VERTICES]
+title = "No near-coincident corners"
+kind = "min"
+value = 0.05
+unit = "mm"
+source = "judgement: two corners (not joined by an edge) closer than 0.05 mm were meant to be one"
+
+[rules.Q_STUB]
+title = "No stubs: members end at the faces they join"
+kind = "min"
+value = 5.0
+unit = "mm"
+source = "judgement: a member that runs on less than 5 mm past the face it joins was pushed through, not ended; a deliberate continuation is longer"
+
+[rules.Q_SHALLOW_JOINT]
+title = "No shallow joints"
+kind = "min"
+value = 45.0
+unit = "deg"
+source = "judgement: where a member meets a face at under 45 deg it leaves a narrow crevice that cannot be cleaned, filleted or inspected; 45 deg braces are the usual steepest deliberate case"
+
+# ---- how the checker measures
+
+[settings.sample_spacing]
+value = 2.0
+unit = "mm"
+source = "longest side of a display-mesh triangle; used only for the pictures and fields, every rule is measured exactly on the solid"
+
+[settings.sliver_aspect]
+value = 10.0
+unit = "ratio"
+source = "a face counts as a sliver only if it is at least this many times longer than its mean width"
+
+[settings.step_parallel]
+value = 3.0
+unit = "deg"
+source = "two faces within this angle of each other count as facing the same way, for the step rule"
+
+[settings.corner_turn]
+value = 30.0
+unit = "deg"
+source = "an edge where the surface turns by at least this much is a corner (for stubs, shallow joints and the inside-corner count)"
+
+[settings.tangent]
+value = 0.05
+unit = "deg"
+source = "two faces meeting at under this angle are smooth (tangent), not a crease"
